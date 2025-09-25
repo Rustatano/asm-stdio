@@ -11,6 +11,10 @@ _start:               ; main function
     ; scan to eax, scan number until there's a whitespace/enter
     ; push chars to stack, count them, pop them, convert and add together, then move to eax and exit
     ; handle negative numbers with a switch variable
+
+    ; divide and conquer:
+    ; 1) get user input to one variable/register
+    ; 2) do something with the input. make it printable
     mov     eax, 3
     mov     ebx, 0
     mov     ecx, 0      ; TODO: lea instruction
