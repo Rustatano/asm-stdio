@@ -1,5 +1,7 @@
 ; A function to scan user input from console
 ; Can be variable length
+section .data
+    str: resd 0
 
 section .text
  ;   global scan_i32
@@ -17,11 +19,9 @@ _start:               ; main function
     ; 2) do something with the input. make it printable
     mov     eax, 3
     mov     ebx, 0
-    mov     ecx, 0      ; TODO: lea instruction
+    mov     ecx, str
     mov     edx, 4
     int     80h
-
-
 
     mov     eax, 1      ; exit sequence with return value 0
     mov     ebx, 0
