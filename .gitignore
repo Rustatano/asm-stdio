@@ -4,4 +4,5 @@ scan_i32/obj
 printf/obj
 
 # test
-_test
+_test/bin
+_test/obj
