@@ -1,7 +1,7 @@
 # object files
 print_i32/obj
 scan_i32/obj
+printf/obj
 
-# binaries
-print_i32/bin
-scan_i32/bin
+# test
+_test
