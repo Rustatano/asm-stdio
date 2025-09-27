@@ -1,30 +1,26 @@
-section .bss                ; .bss for uninitialized variables
-    string_len: resb 1
-
 section .text
     global printf
 
 printf:
-    mov     ecx, [esp + 4]
+    mov     ecx, [esp + 4]              ; load string address to ecx
+    
     call    get_string_len
 
     mov     eax, 4                      ; sys_write
     mov     ebx, 1                      ; stdout
-    mov     edx, [string_len]
-    int     80h
+    int     80h                         ; print
 
-    mov     eax, 1
-    mov     ebx, 0
-    int     80h
+    mov     eax, 1                      ; sys_exit
+    mov     ebx, 0                      ; return value 0
+    int     80h                         ; exit
 
 get_string_len:
-    mov     eax, 0
+    mov     edx, 0                      ; counter set to 0
     count_loop:
-        inc     eax
-        inc     ecx
-        cmp     byte[ecx], 0
-        jnz     count_loop
-    sub     ecx, eax
-    dec     eax
-    mov     [string_len], eax
+        inc     edx                     ; counter += 1
+        inc     ecx                     ; move pointer to next char
+        cmp     byte[ecx], 0            ; 
+        jnz     count_loop              ; jump if not zero
+    sub     ecx, edx                    ; move string pointer back to start of the string
+    dec     edx                         ; remove null char
     ret
