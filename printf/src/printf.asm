@@ -1,26 +1,59 @@
+; Printf allows printing variables with different types located on stack to console.
+; Syntax:
+;   *in main file, where the printf function is being called*
+;   ///
+;   push    format_string   - 1st parameter
+;   push    variable        - 2nd parameter
+;   call    printf          - function call, prints the variable
+;   ///
+
+
 section .text
     global printf
 
 printf:
-    mov     ecx, [esp + 4]              ; load string address to ecx
-    
-    call    get_string_len
+    mov     ecx, [esp + 8]              ; load format_string to ecx
 
+    call    get_print_type
+    
     mov     eax, 4                      ; sys_write
     mov     ebx, 1                      ; stdout
     int     80h                         ; print
 
-    mov     eax, 1                      ; sys_exit
-    mov     ebx, 0                      ; return value 0
-    int     80h                         ; exit
+    ret
 
-get_string_len:
+get_print_type:
+    cmp     byte [ecx], 25h             ; compare first byte to '%' char
+    jne     exit                        ; exit program if doesn't equal
+    inc     ecx                         ; move to next char
+
+    cmp     byte [ecx], 73h             ; compare to 's' char, string
+    mov     ecx, [esp + 8]              ; the arg is on esp + 4, but calling function pushes 
+                                        ;   it's address to stack and ret pops it back, so it 
+                                        ;   needs to be 4 bytes more
+    je      print_string                ; jump to print_string if fmt_str = "%s"
+
+    cmp     byte [ecx], 64h             ; compare to 'd' char, decimal
+    je      print_decimal               ; jump to print_decimal if fmt_str = "%d"
+    
+    ret
+
+print_string:
     mov     edx, 0                      ; counter set to 0
-    count_loop:
+    count_chars:
         inc     edx                     ; counter += 1
         inc     ecx                     ; move pointer to next char
-        cmp     byte[ecx], 0            ; 
-        jnz     count_loop              ; jump if not zero
+        cmp     byte [ecx], 0           ; compares byte at mem address pointing to ecx with 0 (null byte)
+        jnz     count_chars             ; jump if not zero
     sub     ecx, edx                    ; move string pointer back to start of the string
-    dec     edx                         ; remove null char
+    
     ret
+
+print_decimal:
+    ; TODO
+    ret
+
+exit:                                   ; exit program with return value 1
+    mov     eax, 1
+    mov     ebx, 1
+    int     80h
