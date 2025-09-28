@@ -1,6 +1,6 @@
 ; Printf allows printing variables with different types located on stack to console.
 ; Syntax:
-;   *in main file, where the printf function is being called*
+;   *in the file, where the printf function is being called*
 ;   ///
 ;   push    format_string   - 1st parameter
 ;   push    variable        - 2nd parameter
@@ -28,9 +28,6 @@ get_print_type:
     inc     ecx                         ; move to next char
 
     cmp     byte [ecx], 73h             ; compare to 's' char, string
-    mov     ecx, [esp + 8]              ; the arg is on esp + 4, but calling function pushes 
-                                        ;   it's address to stack and ret pops it back, so it 
-                                        ;   needs to be 4 bytes more
     je      print_string                ; jump to print_string if fmt_str = "%s"
 
     cmp     byte [ecx], 64h             ; compare to 'd' char, decimal
@@ -39,6 +36,10 @@ get_print_type:
     ret
 
 print_string:
+    mov     ecx, [esp + 8]              ; the arg is on esp + 4, but calling function pushes 
+                                        ;   it's address to stack and ret pops it back, so it 
+                                        ;   needs to be 4 bytes more,
+                                        ;   jump instruction doesn't push anything to stack
     mov     edx, 0                      ; counter set to 0
     count_chars:
         inc     edx                     ; counter += 1
@@ -50,7 +51,18 @@ print_string:
     ret
 
 print_decimal:
-    ; TODO
+    
+
+    ; 1538 -> 1000, 500, 30, 8
+    ; get num size
+    ; num / 1000 = d1
+    ; push d1
+    ; num / 100 = d2
+    ; push d2
+    ; .
+    ; .
+    ; .
+    ; for digit in stack, push digit + 48 to make it char to ecx
     ret
 
 exit:                                   ; exit program with return value 1
