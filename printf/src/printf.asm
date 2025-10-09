@@ -21,8 +21,6 @@ printf:
 
     call    get_print_type
 
-    call    print_irq
-
     ret
 
 print_irq:
@@ -53,7 +51,7 @@ print_string:
                                         ;   it's address to stack and ret pops it back, so it 
                                         ;   needs to be 4 bytes more,
                                         ;   jump instruction doesn't push anything to stack
-    mov     edx, 0                      ; counter set to 0
+    xor     edx, edx                    ; counter set to 0, xor should be faster than mov
     count_chars:
         inc     edx                     ; counter += 1
         inc     ecx                     ; move pointer to next char
@@ -61,11 +59,15 @@ print_string:
         jnz     count_chars             ; jump if not zero
     sub     ecx, edx                    ; move string pointer back to start of the string
     
+    call    print_irq
+
     ret
 
 print_char:
     mov     ecx, eax                    ; move char to ECX
     mov     edx, 1                      ; set output length to one
+
+    call    print_irq
 
     ret
 
@@ -73,51 +75,30 @@ print_decimal:
     ; 10 ** 1       |   10 ** 2             |   10 ** 3                 | 10 ** 4               | 
     ; 1530 z 8      |   1500 z 30 / 10 ** 1 |   1000 z 500 / 10 ** 2    | 0 z 1000 / 10 ** 3    | end of loop if quotient == 0
     
-    ; loop
-    ; ecx = 10
-    ; 
-    ; eax / ecx ** esi = eax, z edx
-    ; 
-    ; eax = char edx
-    ; edx = 1
-    ; push ebx
-    ; print
-    ; jmp loop
-
-    ; edx - remainder
-    ; mov     eax, 102
-    ; mov     edx, 0
-    ; mov     ecx, 10
-    ; div     ecx
-    ; eax -> 10
-    ; edx -> 2
+    mov     eax, [eax]                  ; dereference the pointer to value
+    mov     ebx, 10                     ; divisor
+    print_digit_loop:
+        xor     edx, edx                ; nullifies EDX, it's above 'cmp eax, 0' so it doesn't messes with 'jne', because 'xor' creates flag tahat messes with jump
         
-    mov     ecx, 10 ; divisor
-    mov     esi, 10 ; exponent
-    
-    div     esi
+        div     ebx                     ; EAX = EAX / ebx, remainder -> EDX
 
-    add     edx, 48
-    push    edx
-    pop     ecx
-    mov     edx, 1
+        add     edx, 48                 ; ASCII move
+        push    edx                     ; push remainder character to stack
+        mov     ecx, esp                ; pointer to digit character on stack, so it can be printed
+        mov     edx, 1                  ; set printing length
 
-    call    print_irq
+        push    eax                     ; save EAX state
+        push    ebx                     ; save EBX state
+        call    print_irq               ; call print_irq, TODO make it print_char
+        pop     ebx                     ; load EBX state
+        pop     eax                     ; load EAX state
 
-    mul     esi     ; power +1
-    
+        pop     edx                     ; clear pushed value, its not needed anymore
 
+        ; its printing the number backwards, TODO reverse it
+        cmp     eax, 0                  ; compare if there is any number left to print
+        jne print_digit_loop
 
-    ; 1538 -> 1000, 500, 30, 8
-    ; get num size
-    ; num / 1000 = d1
-    ; push d1
-    ; num / 100 = d2
-    ; push d2
-    ; .
-    ; .
-    ; .
-    ; for digit in stack, push digit + 48 to make it char to ecx
     ret
 
 exit:                                   ; exit program with return value 1
