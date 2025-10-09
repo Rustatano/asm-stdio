@@ -72,12 +72,11 @@ print_char:
     ret
 
 print_decimal:
-    ; 10 ** 1       |   10 ** 2             |   10 ** 3                 | 10 ** 4               | 
-    ; 1530 z 8      |   1500 z 30 / 10 ** 1 |   1000 z 500 / 10 ** 2    | 0 z 1000 / 10 ** 3    | end of loop if quotient == 0
-    
     mov     eax, [eax]                  ; dereference the pointer to value
     mov     ebx, 10                     ; divisor
-    print_digit_loop:
+    xor     ecx, ecx
+    xor     esi, esi
+    save_digit_loop:
         xor     edx, edx                ; nullifies EDX, it's above 'cmp eax, 0' so it doesn't messes with 'jne', because 'xor' creates flag tahat messes with jump
         
         div     ebx                     ; EAX = EAX / ebx, remainder -> EDX
@@ -87,21 +86,28 @@ print_decimal:
         mov     ecx, esp                ; pointer to digit character on stack, so it can be printed
         mov     edx, 1                  ; set printing length
 
-        push    eax                     ; save EAX state
-        push    ebx                     ; save EBX state
-        call    print_irq               ; call print_irq, TODO make it print_char
-        pop     ebx                     ; load EBX state
-        pop     eax                     ; load EAX state
+        inc     esi
 
-        pop     edx                     ; clear pushed value, its not needed anymore
+        cmp     eax, 0                  ; compare if there is any number left to save, quotient of division
+        jne     save_digit_loop         ; jump if not equals 0
 
-        ; its printing the number backwards, TODO reverse it
-        cmp     eax, 0                  ; compare if there is any number left to print
-        jne print_digit_loop
+    mov     edx, 1                      ; applies to the whole 'print_digit_loop'
+    print_digit_loop:
+        mov     ecx, esp                ; load to ECX pointer to digit
 
+        call    print_irq               ; print the digit
+
+        pop     ecx                     ; waste, remove the printed character from stack
+        cmp     esi, 0                  ; compare if there are any digits left to be printed, digit count
+
+        dec     esi                     ; decrement digit count by 1
+
+        jne     print_digit_loop        ; jump if not equals 0
     ret
 
 exit:                                   ; exit program with return value 1
     mov     eax, 1
     mov     ebx, 1
     int     80h
+
+; TODO: print negative numbers
