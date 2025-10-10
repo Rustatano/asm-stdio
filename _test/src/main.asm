@@ -5,7 +5,8 @@ section .data
     format_string_s db '%s', 0h         ; declare formatting string, char - '%c', deciaml - '%d', string - '%s'
     format_string_c db '%c', 0h
     format_string_d db '%d', 0h
-    num dd -1538                         ; dd instead of db, important
+    neg_num dd -1538                     ; dd instead of db, important
+    pos_num dd 4229
 
 section .text
     global  _start
@@ -27,7 +28,15 @@ _start:
     call    printf                      ; |
 
     push    format_string_d
-    push    num
+    push    pos_num
+    call    printf
+
+    push    format_string_c             ; print newline
+    push    char_new_line               ; |
+    call    printf                      ; |
+
+    push    format_string_d
+    push    neg_num
     call    printf
 
     push    format_string_c             ; print newline
