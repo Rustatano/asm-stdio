@@ -1,3 +1,5 @@
+; old version of printing integers
+
 section .bss
     int_length: resb 4                              ; represents length of number, that will be printed (serves as counter)
     is_negative: resb 1                             ; represents negative sign
