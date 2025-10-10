@@ -12,8 +12,6 @@ section .text
     global printf
 
 printf:
-    ;mov     ecx, [esp + 8]              ; load format_string to ecx
-
     pop     ebx                         ; function address
     pop     eax                         ; load value to print to EAX
     pop     ecx                         ; load formattingn string to ECX
