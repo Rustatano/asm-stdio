@@ -6,7 +6,8 @@
 ;   push    variable        - 2nd parameter
 ;   call    printf          - function call, prints the variable
 ;   ///
-
+section .data
+    negative_sign db 2Dh                ; '-' minus character
 
 section .text
     global printf
@@ -17,11 +18,6 @@ printf:
     pop     ecx                         ; load formattingn string to ECX
     push    ebx                         ; push afunction address back
 
-    call    get_print_type
-
-    ret
-
-get_print_type:
     cmp     byte [ecx], 25h             ; compare first byte to '%' char
     jne     exit                        ; exit program if doesn't equal
     inc     ecx                         ; move to next char
@@ -65,13 +61,28 @@ print_char:
 
 print_decimal:
     mov     eax, [eax]                  ; dereference the pointer to value
-    mov     ebx, 10                     ; divisor
-    xor     ecx, ecx
-    xor     esi, esi
+
+    cmp     eax, 0                      ; check if integer is greater or equal to 0
+    jge     prep_reg                    
+
+    mov     esi, eax                    ; temporarily save EAX to ESI, ESI isn't used for a while
+    mov     eax, negative_sign          ; load negative sign character to print it
+
+    call    print_char
+    mov     eax, esi                    ; load temporarily saved EAX
+    mov     esi, -1                     ; absolute value of integer
+    mul     esi
+
+
+    prep_reg:
+        mov     ebx, 10                 ; divisor
+        xor     ecx, ecx                ; nullify ECX
+        xor     esi, esi                ; nullify ESI
+
     save_digit_loop:
         xor     edx, edx                ; nullifies EDX, it's above 'cmp eax, 0' so it doesn't messes with 'jne', because 'xor' creates flag tahat messes with jump
         
-        div     ebx                     ; EAX = EAX / ebx, remainder -> EDX
+        div     ebx                     ; EAX = EAX / EBX, remainder -> EDX
 
         add     edx, 48                 ; ASCII move
         push    edx                     ; push remainder character to stack
@@ -104,3 +115,9 @@ exit:                                   ; exit program with return value 1
     int     80h
 
 ; TODO: print negative numbers
+; if num < 0
+;   push '-' to stack
+;   absolute value of num \\ * -1
+;   print  '-' + num
+; else
+;   print num
