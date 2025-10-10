@@ -113,11 +113,3 @@ exit:                                   ; exit program with return value 1
     mov     eax, 1
     mov     ebx, 1
     int     80h
-
-; TODO: print negative numbers
-; if num < 0
-;   push '-' to stack
-;   absolute value of num \\ * -1
-;   print  '-' + num
-; else
-;   print num
