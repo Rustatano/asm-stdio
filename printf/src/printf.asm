@@ -23,13 +23,6 @@ printf:
 
     ret
 
-print_irq:
-    mov     eax, 4                      ; sys_write
-    mov     ebx, 1                      ; stdout
-    int     80h                         ; print
-
-    ret
-
 get_print_type:
     cmp     byte [ecx], 25h             ; compare first byte to '%' char
     jne     exit                        ; exit program if doesn't equal
@@ -47,27 +40,28 @@ get_print_type:
     ret
 
 print_string:
-    mov     ecx, eax                    ; move value to print from EAX, to ecx 
+    mov     ecx, eax                    ; move value to print from EAX, to ECX 
                                         ;   it's address to stack and ret pops it back, so it 
                                         ;   needs to be 4 bytes more,
                                         ;   jump instruction doesn't push anything to stack
     xor     edx, edx                    ; counter set to 0, xor should be faster than mov
     count_chars:
-        inc     edx                     ; counter += 1
+        mov     eax, ecx                ; print_char arg1
+        call    print_char
+
         inc     ecx                     ; move pointer to next char
-        cmp     byte [ecx], 0           ; compares byte at mem address pointing to ecx with 0 (null byte)
+        cmp     byte [ecx], 0           ; compares byte at mem address pointing to ECX with 0 (null byte)
         jnz     count_chars             ; jump if not zero
-    sub     ecx, edx                    ; move string pointer back to start of the string
-    
-    call    print_irq
 
     ret
 
 print_char:
     mov     ecx, eax                    ; move char to ECX
-    mov     edx, 1                      ; set output length to one
 
-    call    print_irq
+    mov     eax, 4                      ; sys_write
+    mov     ebx, 1                      ; stdout
+    mov     edx, 1                      ; set output length to one
+    int     80h                         ; print
 
     ret
 
@@ -95,7 +89,8 @@ print_decimal:
     print_digit_loop:
         mov     ecx, esp                ; load to ECX pointer to digit
 
-        call    print_irq               ; print the digit
+        mov     eax, ecx                ; print_char arg1
+        call    print_char              ; print the digit
 
         pop     ecx                     ; waste, remove the printed character from stack
         cmp     esi, 0                  ; compare if there are any digits left to be printed, digit count
