@@ -2,8 +2,9 @@
 ; Syntax:
 ;   *in the file, where the printf function is being called*
 ;   ///
-;   push    format_string   - 1st parameter
-;   push    variable        - 2nd parameter
+;   push    variable        - 1st argument
+;   push    variable        - nth argument, optional
+;   push    format_string   - last argument
 ;   call    printf          - function call, prints the variable
 ;   ///
 section .data
@@ -14,23 +15,47 @@ section .text
 
 printf:
     pop     ebx                         ; function address
-    pop     eax                         ; load value to print to EAX
-    pop     ecx                         ; load formattingn string to ECX
+    pop     edi                         ; load formatting string to EDI, preserved through the entire program, not optimal
+                                        ;   TODO: optimalize
     push    ebx                         ; push function address back
-
-    cmp     byte [ecx], 25h             ; compare first byte to '%' char
-    jne     exit                        ; exit program if doesn't equal
-    inc     ecx                         ; move to next char
-
-    cmp     byte [ecx], 73h             ; compare to 's' char, string
-    je      print_string                ; jump to print_string if fmt_str = "%s"
-
-    cmp     byte [ecx], 64h             ; compare to 'd' char, decimal
-    je      print_decimal               ; jump to print_decimal if fmt_str = "%d"
-
-    cmp     byte [ecx], 63h             ; compare to 'c' char, decimal
-    je      print_char                  ; jump to print_char if fmt_str = "%c"
     
+    print_arg:
+        cmp     byte [edi], 25h         ; compare first byte to '%' char
+        je      print_arg_continue      ; if it's formatting string
+        cmp     byte [edi], 0
+        je      exit
+        print_char_in_fmt_string:
+        mov     eax, edi
+        call    print_char
+        jmp     next_arg
+
+        print_arg_continue:
+        inc     edi                     ; move to next char, should be s, d, c..., if input is correct
+
+        pop     ebx                     ; function address
+        pop     eax                     ; load value to print to EAX
+        push    ebx                     ; push function address back
+
+        cmp     byte [edi], 73h         ; compare to 's' char, string
+        jne     not_string
+        call    print_string            ; jump to print_string if fmt_str = "%s"
+        jmp     next_arg
+        not_string:
+
+        cmp     byte [edi], 64h         ; compare to 'd' char, decimal
+        jne     not_decimal
+        call    print_decimal           ; jump to print_decimal if fmt_str = "%d"
+        jmp     next_arg
+        not_decimal:
+        
+        cmp     byte [edi], 63h         ; compare to 'c' char, decimal
+        jne     exit                    ; if nothing matches, print it as a character
+        call    print_char              ; jump to print_char if fmt_str = "%c"
+
+        next_arg:
+        inc     edi                     ; increment pointer to next argument, should be '\0' or '%', if input is correct
+        jmp     print_arg
+
     exit:
         ret
 
@@ -96,17 +121,21 @@ print_decimal:
         jne     save_digit_loop         ; jump if not equals 0
 
     mov     edx, 1                      ; applies to the whole 'print_digit_loop'
-    print_digit_loop:
+    print_digit_loop:                   ; second loop, because it's pushed to stack in reverse order
         mov     ecx, esp                ; load to ECX pointer to digit
 
         mov     eax, ecx                ; print_char arg1
         call    print_char              ; print the digit
 
         pop     ecx                     ; waste, remove the printed character from stack
-        cmp     esi, 0                  ; compare if there are any digits left to be printed, digit count
 
         dec     esi                     ; decrement digit count by 1
+        cmp     esi, 0                  ; compare if there are any digits left to be printed, digit count -> ESI
 
         jne     print_digit_loop        ; jump if not equals 0
+
     ret
+
+; TODO: multiple args printed, multiple formatting chars in formatting string
+; loop
 

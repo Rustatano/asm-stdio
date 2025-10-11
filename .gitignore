@@ -1,6 +1,6 @@
 # object files
 print_i32/obj
-scan_i32/obj
+scanf/obj
 printf/obj
 
 # test
