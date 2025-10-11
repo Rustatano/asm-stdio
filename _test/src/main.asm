@@ -21,7 +21,7 @@ _start:
                                         ;   used to determine if string or number or something else will be printed,
                                         ;   first parameter of printf_s function
     call    printf_s
-    
+
     push    char
     push    fmt_str_c
     call    printf_s
@@ -29,7 +29,6 @@ _start:
     push    char_new_line               ; |
     push    fmt_str_c                   ; print newline
     call    printf_s                    ; |
-
     push    pos_num
     push    fmt_str_d
     call    printf_s
@@ -55,7 +54,7 @@ _start:
 
     push    char_new_line               ; |
     push    fmt_str_c                   ; print newline
-    call    printf_s                      ; |
+    call    printf_s                     ; |
 
     mov     eax, 1                      ; exit
     mov     ebx, 0

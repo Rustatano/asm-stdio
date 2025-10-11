@@ -8,6 +8,8 @@
 ;   call    printf_s          - function call, prints the variable
 ;   ///
 
+section .note.GNU-stack noalloc noexec nowrite progbits
+
 section .data
     negative_sign db 2Dh                ; '-' minus character
 
@@ -64,7 +66,7 @@ printf_s:
 
     print_percent_char:
         pop     ebx                     ; function address
-        push     eax                    ; save value to print back to stack, it will be popped afterwards
+        push    eax                     ; save value to print back to stack, it will be popped afterwards
         push    ebx                     ; push function address back
         dec     edi                     ; move pointer to '%' char
         mov     eax, edi                ; move the pointer to eax
@@ -88,13 +90,15 @@ print_string:
     ret
 
 print_char:
-    mov     ecx, eax                    ; move char to ECX
+    push    eax
+    mov     ecx, [esp]                  ; move char to ECX
 
     mov     eax, 4                      ; sys_write
     mov     ebx, 1                      ; stdout
     mov     edx, 1                      ; set output length to one
     int     80h                         ; print
 
+    pop     eax
     ret
 
 print_decimal:
@@ -104,7 +108,7 @@ print_decimal:
     jge     prep_reg                    
 
     mov     esi, eax                    ; temporarily save EAX to ESI, ESI isn't used for a while
-    mov     eax, negative_sign          ; load negative sign character to print it
+    mov     eax, negative_sign          ; relative load negative sign character to print it
 
     call    print_char
     mov     eax, esi                    ; load temporarily saved EAX

@@ -1,3 +1,7 @@
 {
-    "makefile.configureOnOpen": false
+    "makefile.configureOnOpen": false,
+    "files.associations": {
+        "*.asm": "asm-intel-x86-generic",
+        "stdio.h": "c"
+    }
 }

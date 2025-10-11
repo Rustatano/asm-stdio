@@ -1,8 +1,9 @@
-extern int printf_s(char *fmt, char *str);
+#include <stdio.h>
+
+extern int printf_s(char *fmt, ...);
 
 int main(int argc, char const *argv[])
 {
-    
-    printf_s("%c", "R");
+    printf_s("ggg%cfff\n", 'R');
     return 0;
 }
