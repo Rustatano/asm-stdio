@@ -16,7 +16,7 @@ printf:
     pop     ebx                         ; function address
     pop     eax                         ; load value to print to EAX
     pop     ecx                         ; load formattingn string to ECX
-    push    ebx                         ; push afunction address back
+    push    ebx                         ; push function address back
 
     cmp     byte [ecx], 25h             ; compare first byte to '%' char
     jne     exit                        ; exit program if doesn't equal
@@ -31,7 +31,8 @@ printf:
     cmp     byte [ecx], 63h             ; compare to 'c' char, decimal
     je      print_char                  ; jump to print_char if fmt_str = "%c"
     
-    ret
+    exit:
+        ret
 
 print_string:
     mov     ecx, eax                    ; move value to print from EAX, to ECX 
@@ -109,7 +110,3 @@ print_decimal:
         jne     print_digit_loop        ; jump if not equals 0
     ret
 
-exit:                                   ; exit program with return value 1
-    mov     eax, 1
-    mov     ebx, 1
-    int     80h
