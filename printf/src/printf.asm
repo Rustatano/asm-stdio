@@ -7,6 +7,7 @@
 ;   push    format_string   - last argument
 ;   call    printf          - function call, prints the variable
 ;   ///
+
 section .data
     negative_sign db 2Dh                ; '-' minus character
 
@@ -24,7 +25,6 @@ printf:
         je      print_arg_continue      ; if it's formatting string
         cmp     byte [edi], 0
         je      exit
-        print_char_in_fmt_string:
         mov     eax, edi
         call    print_char
         jmp     next_arg
@@ -49,7 +49,7 @@ printf:
         not_decimal:
         
         cmp     byte [edi], 63h         ; compare to 'c' char, decimal
-        jne     exit                    ; if nothing matches, print it as a character
+        jne     print_percent_char      ; if nothing matches, print it as a character
         call    print_char              ; jump to print_char if fmt_str = "%c"
 
         next_arg:
@@ -58,6 +58,15 @@ printf:
 
     exit:
         ret
+
+    print_percent_char:
+        pop     ebx                     ; function address
+        push     eax                    ; save value to print back to stack, it will be popped afterwards
+        push    ebx                     ; push function address back
+        dec     edi                     ; move pointer to '%' char
+        mov     eax, edi                ; move the pointer to eax
+        call    print_char
+        jmp     next_arg
 
 print_string:
     mov     ecx, eax                    ; move value to print from EAX, to ECX 

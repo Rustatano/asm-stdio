@@ -6,7 +6,7 @@ section .data
     fmt_str_c db "%c", 0h
     fmt_str_d db "%d", 0h
     fmt_str_c_s_d db \
-    "%c%s, World! %d", 0h               ; able to print complex formatting string
+    "%c%s, World! %r %d %[]", 0h         ; able to print complex formatting string
 
     neg_num dd -1538                    ; dd instead of db, important
     pos_num dd 4229
@@ -50,7 +50,7 @@ _start:
     push    pos_num                     ; arg3, %d
     push    string                      ; arg2, %s
     push    char                        ; arg1, %c
-    push    fmt_str_c_s_d                 ; %d%d -> print multiple arguments
+    push    fmt_str_c_s_d               ; print complex formatting string
     call    printf
 
     push    char_new_line               ; |
