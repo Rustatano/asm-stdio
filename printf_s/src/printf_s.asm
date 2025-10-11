@@ -1,20 +1,23 @@
-; Printf allows printing variables with different types located on stack to console.
+; Printf_s allows printing variables with different types located on stack to console.
 ; Syntax:
-;   *in the file, where the printf function is being called*
+;   *in the file, where the printf_s function is being called*
 ;   ///
 ;   push    variable        - 1st argument
 ;   push    variable        - nth argument, optional
 ;   push    format_string   - last argument
-;   call    printf          - function call, prints the variable
+;   call    printf_s          - function call, prints the variable
 ;   ///
 
 section .data
     negative_sign db 2Dh                ; '-' minus character
 
 section .text
-    global printf
+    global printf_s
 
-printf:
+printf_s:
+    xor     edi, edi                    ; nullify EDI
+    xor     esi, esi                    ; nullify ESI
+
     pop     ebx                         ; function address
     pop     edi                         ; load formatting string to EDI, preserved through the entire program, not optimal
                                         ;   TODO: optimalize
@@ -25,7 +28,7 @@ printf:
         je      print_arg_continue      ; if it's formatting string
         cmp     byte [edi], 0
         je      exit
-        mov     eax, edi
+        mov     eax, edi                ; move pointer to value to EAX
         call    print_char
         jmp     next_arg
 
