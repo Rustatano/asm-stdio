@@ -1,10 +1,10 @@
 section .data
-    string db 'Hello World!', 0Ah, 0h   ; declare string variable with new line character at the end and null char
+    string db "Hello World!", 0Ah, 0h   ; declare string variable with new line character at the end and null char
     char db 'R'                         ; declare char variable
     char_new_line db 0Ah
-    format_string_s db '%s', 0h         ; declare formatting string, char - '%c', deciaml - '%d', string - '%s'
-    format_string_c db '%c', 0h
-    format_string_d db '%d', 0h
+    format_string_s db "%s", 0h         ; declare formatting string, char - '%c', deciaml - '%d', string - '%s'
+    format_string_c db "%c", 0h
+    format_string_d db "%d", 0h
     neg_num dd -1538                     ; dd instead of db, important
     pos_num dd 4229
 
