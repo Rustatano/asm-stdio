@@ -1,4 +1,4 @@
-NASM = nasm -g -f elf
+NASM = nasm -g -f elf32
 
 #OBJECTS = printf_s.o main.o
 

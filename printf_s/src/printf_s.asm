@@ -8,8 +8,6 @@
 ;   call    printf_s          - function call, prints the variable
 ;   ///
 
-section .note.GNU-stack noalloc noexec nowrite progbits
-
 section .data
     negative_sign db 2Dh                ; '-' minus character
 
@@ -30,7 +28,7 @@ printf_s:
         je      print_arg_continue      ; if it's formatting string
         cmp     byte [edi], 0
         je      exit
-        mov     eax, edi                ; move pointer to value to EAX
+        mov     eax, edi                ; move pointer to fmt string to EAX
         call    print_char
         jmp     next_arg
 
@@ -53,7 +51,7 @@ printf_s:
         jmp     next_arg
         not_decimal:
         
-        cmp     byte [edi], 63h         ; compare to 'c' char, decimal
+        cmp     byte [edi], 63h         ; compare to 'c' char, char
         jne     print_percent_char      ; if nothing matches, print it as a character
         call    print_char              ; jump to print_char if fmt_str = "%c"
 
@@ -75,17 +73,14 @@ printf_s:
 
 print_string:
     mov     ecx, eax                    ; move value to print from EAX, to ECX 
-                                        ;   it's address to stack and ret pops it back, so it 
-                                        ;   needs to be 4 bytes more,
-                                        ;   jump instruction doesn't push anything to stack
-    xor     edx, edx                    ; counter set to 0, xor should be faster than mov
-    count_chars:
+
+    print_chars_loop:
         mov     eax, ecx                ; print_char arg1
         call    print_char
 
         inc     ecx                     ; move pointer to next char
         cmp     byte [ecx], 0           ; compares byte at mem address pointing to ECX with 0 (null byte)
-        jnz     count_chars             ; jump if not zero
+        jnz     print_chars_loop        ; jump if not zero
 
     ret
 
@@ -151,6 +146,9 @@ print_decimal:
         jne     print_digit_loop        ; jump if not equals 0
 
     ret
+
+section .note.GNU-stack \
+    noalloc noexec nowrite progbits
 
 ; TODO: multiple args printed, multiple formatting chars in formatting string
 ; loop
