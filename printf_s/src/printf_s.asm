@@ -32,8 +32,10 @@ printf_s:
         cmp     byte [edi], 0
         je      exit
 
-        mov     [buffer], edi           ; move pointer to fmt string to EAX
-        call    print_char
+        mov     eax, edi                ; move pointer to fmt string to EAX
+
+        call    print_string_char       ; print non fmt character
+
         jmp     next_arg
 
         print_arg_continue:
@@ -77,15 +79,27 @@ printf_s:
         jmp     next_arg
 
 print_string:
-    mov     ecx, eax                    ; move value to print from EAX, to ECX 
+    call    print_string_char           ; print char
+    
+    inc     eax                         ; move pointer to next char
+    cmp     byte [eax], 0               ; compares byte at mem address pointing to ECX with 0 (null byte)
+    jnz     print_string                ; jump if not zero
 
-    print_chars_loop:
-        mov     eax, ecx                ; print_char arg1
-        call    print_char
+    ret
 
-        inc     ecx                     ; move pointer to next char
-        cmp     byte [ecx], 0           ; compares byte at mem address pointing to ECX with 0 (null byte)
-        jnz     print_chars_loop        ; jump if not zero
+print_string_char:
+    push    eax                         ; save values of EAX and ECX registers
+    push    ecx
+
+    mov     ecx,  eax                   ; load pointer to character to ECX
+
+    mov     eax, 4                      ; print sequence
+    mov     ebx, 1
+    mov     edx, 1
+    int     80h
+
+    pop     ecx                         ; load back saved values
+    pop     eax
 
     ret
 
