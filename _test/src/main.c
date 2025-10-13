@@ -1,14 +1,15 @@
 #include <stdio.h>
-
-extern int printf_s(char *fmt, ...);
+#include "printf_s.h"
 
 int main(int argc, char const *argv[])
 {
     //char s[] = "RRR";
     //printf_s("ggg%sfff\n", s);
-    char c = 'R';
-    printf_s("%c", 'R');
-    //int d = 78966;
-    //printf_s("ggg%dfff\n", d);
+    //printf_s("%s\n", "Hello World!");
+    // something is wrong wwith stack (stack alignment?)
+    //printf_s("%c%c\n", 'Y', 'G');
+    //printf_s("%c%c\n", 'Y', 'G');
+    int d = 78966;
+    printf_s("%d%c\n", d, 'Y');
     return 0;
 }

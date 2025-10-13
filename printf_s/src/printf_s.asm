@@ -8,6 +8,9 @@
 ;   call    printf_s          - function call, prints the variable
 ;   ///
 
+section .bss
+    buffer resb 1
+
 section .data
     negative_sign db 2Dh                ; '-' minus character
 
@@ -28,7 +31,8 @@ printf_s:
         je      print_arg_continue      ; if it's formatting string
         cmp     byte [edi], 0
         je      exit
-        mov     eax, edi                ; move pointer to fmt string to EAX
+
+        mov     [buffer], edi           ; move pointer to fmt string to EAX
         call    print_char
         jmp     next_arg
 
@@ -37,6 +41,7 @@ printf_s:
 
         pop     ebx                     ; function address
         pop     eax                     ; load value to print to EAX
+        mov     [buffer], eax
         push    ebx                     ; push function address back
 
         cmp     byte [edi], 73h         ; compare to 's' char, string
@@ -85,22 +90,23 @@ print_string:
     ret
 
 print_char:
-    push    eax
-    mov     ecx, [esp]                  ; move char to ECX
+    mov     ecx, buffer                 ; move char to ECX
 
     mov     eax, 4                      ; sys_write
     mov     ebx, 1                      ; stdout
     mov     edx, 1                      ; set output length to one
     int     80h                         ; print
 
-    pop     eax
     ret
 
 print_decimal:
-    mov     eax, [eax]                  ; dereference the pointer to value
+    xor     ecx, ecx                    ; nullify ECX
+    xor     esi, esi                    ; nullify ESI
+
+    mov     [buffer], eax
 
     cmp     eax, 0                      ; check if integer is greater or equal to 0
-    jge     prep_reg                    
+    jge     save_digit_loop                    
 
     mov     esi, eax                    ; temporarily save EAX to ESI, ESI isn't used for a while
     mov     eax, negative_sign          ; relative load negative sign character to print it
@@ -111,21 +117,14 @@ print_decimal:
     mul     esi
 
 
-    prep_reg:
-        mov     ebx, 10                 ; divisor
-        xor     ecx, ecx                ; nullify ECX
-        xor     esi, esi                ; nullify ESI
-
     save_digit_loop:
         xor     edx, edx                ; nullifies EDX, it's above 'cmp eax, 0' so it doesn't messes with 'jne', because 'xor' creates flag tahat messes with jump
         
+        mov     ebx, 10
         div     ebx                     ; EAX = EAX / EBX, remainder -> EDX
 
         add     edx, 48                 ; ASCII move
-        push    edx                     ; push remainder character to stack
-        mov     ecx, esp                ; pointer to digit character on stack, so it can be printed
-        mov     edx, 1                  ; set printing length
-
+        push    edx                     ; move value of char to be printed to buffer
         inc     esi
 
         cmp     eax, 0                  ; compare if there is any number left to save, quotient of division
@@ -133,12 +132,10 @@ print_decimal:
 
     mov     edx, 1                      ; applies to the whole 'print_digit_loop'
     print_digit_loop:                   ; second loop, because it's pushed to stack in reverse order
-        mov     ecx, esp                ; load to ECX pointer to digit
+        pop     eax                     ; load to ECX pointer to digit
 
-        mov     eax, ecx                ; print_char arg1
+        mov     [buffer], eax           ; print_char arg1
         call    print_char              ; print the digit
-
-        pop     ecx                     ; waste, remove the printed character from stack
 
         dec     esi                     ; decrement digit count by 1
         cmp     esi, 0                  ; compare if there are any digits left to be printed, digit count -> ESI
