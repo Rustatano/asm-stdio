@@ -16,13 +16,13 @@ int main(int argc, char const *argv[])
     //printf_s("f%d-%c\n", d, 'Y');
        
     // vvvvvvv segfault - fix it vvvvvv
-    //printf_s("%cello, Wor%s %d %r%%%%%[%d] %s %c", 'H', "ld!", 2025, -125, "Hi again", '\n');
-    //printf_s("f %c sdf\ngdf- %c %tfsdfsd%%%%gg%%h\n", 'Q', 'A');
-    //printf_s("f %c sdf\ngdf- %c %tfsdfsd%%%%gg%%h\n", 'Q', 'A');
+    printf_s("%cello, Wor%s %d %r%%%%%[%d] %s %c", 'H', "ld!", 2025, -125, "Hi again", '\n');
+    printf_s("f %c sdf\ngdf- %c %tfsdfsd%%%%gg%%h\n", 'Q', 'A');
+    printf_s("f %c sdf\ngdf- %c %tfsdfsd%%%%gg%%h\n", 'Q', 'A');
     //printf_s("%s", "Hello");
     //printf_s("%c", 'G');
-    printf_s("AAA");
-    printf_s("BBB");
+    //printf_s("AAA");
+    //printf_s("BBB");
     //printf_s("%d", 154);
 
     return 0;

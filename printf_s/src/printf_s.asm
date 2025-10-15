@@ -12,13 +12,18 @@ section .text
     global printf_s
 
 printf_s:
+    push    ebp                         ; save base pointer
+    mov     ebp, esp                    ; set up stack frame
+    push    edi                         ; save callee-saved registers
+    push    esi
+    push    ebx
+
     xor     edi, edi                    ; nullify EDI
     xor     esi, esi                    ; nullify ESI
 
-    mov     edi, [esp + 4]              ; load formatting string to EDI
+    mov     edi, [ebp + 8]              ; load formatting string to EDI
 
-    mov     esi, esp                    ; load stack pointer
-    add     esi, 8                      ; move pointer to 1st argument
+    lea     esi, [ebp + 12]             ; load stack pointer and move pointer to 1st argument
     
     print_arg:
         cmp     byte [edi], 25h         ; compare first byte to '%' char
@@ -36,21 +41,21 @@ printf_s:
 
         cmp     byte [edi], 73h         ; compare to 's' char, string
         jne     not_string
-        mov     eax, [esi]              ; load value to print, dereference
+        mov     eax, [esi]              ; load value to print, dereference -> string
         call    print_string            ; jump to print_string if fmt_str = "%s"
         jmp     add4_to_esi
         not_string:
 
         cmp     byte [edi], 64h         ; compare to 'd' char, decimal
         jne     not_decimal
-        mov     eax, [esi]              ; load value to print
+        mov     eax, [esi]              ; load value to print -> pointer to integer
         call    print_decimal           ; jump to print_decimal if fmt_str = "%d"
         jmp     add4_to_esi
         not_decimal:
         
         cmp     byte [edi], 63h         ; compare to 'c' char, char
         jne     print_percent_char      ; if nothing matches, print it as a character
-        mov     eax, esi                ; load value to print
+        mov     eax, esi                ; load value to print -> pointer to char
         call    print_char              ; jump to print_char if fmt_str = "%c"
 
         add4_to_esi:
@@ -61,6 +66,10 @@ printf_s:
         jmp     print_arg
 
     exit:
+        pop     ebx                     ; restore callee-saved registers
+        pop     esi
+        pop     edi
+        pop     ebp                     ; restore base pointer
         ret
 
     print_percent_char:
@@ -144,7 +153,7 @@ print_decimal:
 
     mov     edx, 1                      ; applies to the whole 'print_digit_loop'
     print_digit_loop:                   ; second loop, because it's pushed to stack in reverse order
-        mov     eax, esp
+        mov     eax, esp                ; argument for printing char
 
         call    print_char              ; print the digit
 
