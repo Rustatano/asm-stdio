@@ -3,7 +3,7 @@
 
 int main(int argc, char const *argv[])
 {
-    char s[] = "RRR";
+    //char s[] = "RRR";
     //printf_s("f%ssdf\ngdf\n", s);
     //printf_s("%s\n", "Hello World!");
     // something is wrong wwith stack (stack alignment?)
@@ -14,7 +14,11 @@ int main(int argc, char const *argv[])
     //printf_s("%d", d);
     //printf_s("f%d-%c\n", d, 'Y');
     //printf_s("f%d-%c\n", d, 'Y');
-    printf_s("f%ssdf\ngdf-%dRR\n", s, d);
+    //printf_s("f %d sdf\ngdf- %d %tfsdfsd%%%%gg%%h\n", d, d);
+    //printf_s("f %c sdf\ngdf- %c %tfsdfsd%%%%gg%%h\n", 'Q', 'A');
+    //printf_s("f %c sdf\ngdf- %c %tfsdfsd%%%%gg%%h\n", 'Q', 'A');
+    printf_s("A");
+    printf_s("B");
 
     return 0;
 }

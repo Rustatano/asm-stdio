@@ -54,7 +54,7 @@ _start:
 
     push    char_new_line               ; |
     push    fmt_str_c                   ; print newline
-    call    printf_s                     ; |
+    call    printf_s                    ; |
 
     mov     eax, 1                      ; exit
     mov     ebx, 0

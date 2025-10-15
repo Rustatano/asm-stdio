@@ -1,5 +1,5 @@
 ; Printf_s allows printing variables with different types located on stack to console.
-; Syntax:
+; Syntax (old):
 ;   *in the file, where the printf_s function is being called*
 ;   ///
 ;   push    variable        - 1st argument
@@ -21,19 +21,18 @@ printf_s:
     xor     edi, edi                    ; nullify EDI
     xor     esi, esi                    ; nullify ESI
 
-    pop     ebx                         ; function address
-    pop     edi                         ; load formatting string to EDI, preserved through the entire program, not optimal
-                                        ;   TODO: optimalize
-    push    ebx                         ; push function address back
+    mov     edi, [esp + 4]              ; load formatting string to EDI
+
+    mov     esi, esp                    ; load stack pointer
+    add     esi, 8                      ; move pointer to 1st argument
     
     print_arg:
         cmp     byte [edi], 25h         ; compare first byte to '%' char
         je      print_arg_continue      ; if it's formatting string
-        cmp     byte [edi], 0
+        cmp     byte [edi], 0           ; check if  it's '\0' char
         je      exit
 
-        mov     eax, edi                ; move pointer to fmt string to EAX
-
+        mov     eax, edi                ; move pointer to fmt string char to EAX
         call    print_string_char       ; print non fmt character
 
         jmp     next_arg
@@ -41,10 +40,9 @@ printf_s:
         print_arg_continue:
         inc     edi                     ; move to next char, should be s, d, c..., if input is correct
 
-        pop     ebx                     ; function address
-        pop     eax                     ; load value to print to EAX
-        mov     [buffer], eax
-        push    ebx                     ; push function address back
+        mov     eax, [esi]              ; load value to print
+        mov     [buffer], eax           ; save the value to buffer
+        add     esi, 4                  ; move pointer to next argument
 
         cmp     byte [edi], 73h         ; compare to 's' char, string
         jne     not_string
@@ -70,12 +68,11 @@ printf_s:
         ret
 
     print_percent_char:
-        pop     ebx                     ; function address
-        push    eax                     ; save value to print back to stack, it will be popped afterwards
-        push    ebx                     ; push function address back
-        dec     edi                     ; move pointer to '%' char
-        mov     eax, edi                ; move the pointer to eax
-        call    print_char
+        dec     edi                     ; move pointer to '%'
+        mov     eax, edi                ; move the pointer to EAX
+
+        call    print_string_char       ; print '%'
+
         jmp     next_arg
 
 print_string:
@@ -114,6 +111,8 @@ print_char:
     ret
 
 print_decimal:
+    push    esi                         ; save value of ESI
+
     xor     ecx, ecx                    ; nullify ECX
     xor     esi, esi                    ; nullify ESI
 
@@ -156,11 +155,9 @@ print_decimal:
 
         jne     print_digit_loop        ; jump if not equals 0
 
+    pop     esi                         ; retrieve value of ESI
     ret
 
 section .note.GNU-stack \
     noalloc noexec nowrite progbits
-
-; TODO: multiple args printed, multiple formatting chars in formatting string
-; loop
 
