@@ -17,7 +17,6 @@ printf_s:
 
     mov     edi, [esp + 4]              ; load formatting string to EDI
 
-    mov     esi, [esp + 8]
     mov     esi, esp                    ; load stack pointer
     add     esi, 8                      ; move pointer to 1st argument
     

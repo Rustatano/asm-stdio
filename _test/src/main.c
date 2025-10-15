@@ -21,8 +21,8 @@ int main(int argc, char const *argv[])
     //printf_s("f %c sdf\ngdf- %c %tfsdfsd%%%%gg%%h\n", 'Q', 'A');
     //printf_s("%s", "Hello");
     //printf_s("%c", 'G');
-    printf_s("A%d\n", -145);
-    printf_s("B");
+    printf_s("AAA");
+    printf_s("BBB");
     //printf_s("%d", 154);
 
     return 0;
