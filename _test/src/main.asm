@@ -22,40 +22,51 @@ _start:
                                         ;   first parameter of printf_s function
     call    printf_s
 
-    push    char
+    mov     eax, [char]                 ; dereference it because it is a pointer to char
+    push    eax
     push    fmt_str_c
     call    printf_s
 
-    push    char_new_line               ; |
+    mov     eax, [char_new_line]
+    push    eax
     push    fmt_str_c                   ; print newline
-    call    printf_s                    ; |
-    push    pos_num
+    call    printf_s
+    
+    mov     eax, [pos_num]
+    push    eax
     push    fmt_str_d
     call    printf_s
 
-    push    char_new_line               ; |
+    mov     eax, [char_new_line]
+    push    eax
     push    fmt_str_c                   ; print newline
-    call    printf_s                    ; |
+    call    printf_s
 
-    push    neg_num
+    mov     eax, [neg_num]
+    push    eax
     push    fmt_str_d
     call    printf_s
 
-    push    char_new_line               ; |
+    mov     eax, [char_new_line]
+    push    eax
     push    fmt_str_c                   ; print newline
-    call    printf_s                    ; |
+    call    printf_s
 
                                         ; arguments are pushed in reverse order, stack if LIFO
-    push    pos_num                     ; arg3, %d
+    mov     eax, [pos_num]
+    push    eax                         ; arg3, %d
     push    string                      ; arg2, %s
-    push    char                        ; arg1, %c
+    mov     eax, [char]
+    push    eax                         ; arg1, %c
     push    fmt_str_c_s_d               ; print complex formatting string
     call    printf_s
 
-    push    char_new_line               ; |
+    mov     eax, [char_new_line]
+    push    eax
     push    fmt_str_c                   ; print newline
-    call    printf_s                    ; |
+    call    printf_s
 
     mov     eax, 1                      ; exit
     mov     ebx, 0
     int     80h
+

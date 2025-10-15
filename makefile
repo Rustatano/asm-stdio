@@ -3,7 +3,7 @@ NASM = nasm -g -f elf32
 #OBJECTS = printf_s.o main.o
 
 printf_s: link_printf_s
-	gdb ./_test/bin/main
+	./_test/bin/main
 
 link_printf_s: main.o printf_s.o
 	ld -m elf_i386 -o _test/bin/main _test/obj/main.o printf_s/obj/printf_s.o

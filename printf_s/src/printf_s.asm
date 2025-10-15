@@ -8,12 +8,6 @@
 ;   call    printf_s          - function call, prints the variable
 ;   ///
 
-section .bss
-    buffer resb 1
-
-section .data
-    negative_sign db 2Dh                ; '-' minus character
-
 section .text
     global printf_s
 
@@ -23,6 +17,7 @@ printf_s:
 
     mov     edi, [esp + 4]              ; load formatting string to EDI
 
+    mov     esi, [esp + 8]
     mov     esi, esp                    ; load stack pointer
     add     esi, 8                      ; move pointer to 1st argument
     
@@ -40,25 +35,27 @@ printf_s:
         print_arg_continue:
         inc     edi                     ; move to next char, should be s, d, c..., if input is correct
 
-        mov     eax, [esi]              ; load value to print
-        mov     [buffer], eax           ; save the value to buffer
-        add     esi, 4                  ; move pointer to next argument
-
         cmp     byte [edi], 73h         ; compare to 's' char, string
         jne     not_string
+        mov     eax, [esi]              ; load value to print, dereference
         call    print_string            ; jump to print_string if fmt_str = "%s"
-        jmp     next_arg
+        jmp     add4_to_esi
         not_string:
 
         cmp     byte [edi], 64h         ; compare to 'd' char, decimal
         jne     not_decimal
+        mov     eax, [esi]              ; load value to print
         call    print_decimal           ; jump to print_decimal if fmt_str = "%d"
-        jmp     next_arg
+        jmp     add4_to_esi
         not_decimal:
         
         cmp     byte [edi], 63h         ; compare to 'c' char, char
         jne     print_percent_char      ; if nothing matches, print it as a character
+        mov     eax, esi                ; load value to print
         call    print_char              ; jump to print_char if fmt_str = "%c"
+
+        add4_to_esi:
+        add     esi, 4                  ; move pointer to next argument
 
         next_arg:
         inc     edi                     ; increment pointer to next argument, should be '\0' or '%', if input is correct
@@ -101,7 +98,7 @@ print_string_char:
     ret
 
 print_char:
-    mov     ecx, buffer                 ; move char to ECX
+    mov     ecx, eax
 
     mov     eax, 4                      ; sys_write
     mov     ebx, 1                      ; stdout
@@ -116,19 +113,22 @@ print_decimal:
     xor     ecx, ecx                    ; nullify ECX
     xor     esi, esi                    ; nullify ESI
 
-    mov     [buffer], eax
-
     cmp     eax, 0                      ; check if integer is greater or equal to 0
     jge     save_digit_loop                    
 
     mov     esi, eax                    ; temporarily save EAX to ESI, ESI isn't used for a while
-    mov     eax, negative_sign          ; relative load negative sign character to print it
 
-    call    print_char
+    mov     eax, 2Dh                    ; load '-' char to EAX
+    push    eax                         ; push '-' to stack to print it
+    mov     eax, esp                    ; move pointer to '-' to EAX
+    call    print_char                  ; print '-'
+    pop     eax                         ; delete '-'
+
     mov     eax, esi                    ; load temporarily saved EAX
     mov     esi, -1                     ; absolute value of integer
     mul     esi
 
+    xor     esi, esi
 
     save_digit_loop:
         xor     edx, edx                ; nullifies EDX, it's above 'cmp eax, 0' so it doesn't messes with 'jne', because 'xor' creates flag tahat messes with jump
@@ -145,14 +145,14 @@ print_decimal:
 
     mov     edx, 1                      ; applies to the whole 'print_digit_loop'
     print_digit_loop:                   ; second loop, because it's pushed to stack in reverse order
-        pop     eax                     ; load to ECX pointer to digit
+        mov     eax, esp
 
-        mov     [buffer], eax           ; print_char arg1
         call    print_char              ; print the digit
 
         dec     esi                     ; decrement digit count by 1
         cmp     esi, 0                  ; compare if there are any digits left to be printed, digit count -> ESI
 
+        pop     eax                     ; delete digit
         jne     print_digit_loop        ; jump if not equals 0
 
     pop     esi                         ; retrieve value of ESI
