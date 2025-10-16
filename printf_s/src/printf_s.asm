@@ -21,49 +21,46 @@ printf_s:
     xor     edi, edi                    ; nullify EDI
     xor     esi, esi                    ; nullify ESI
 
-    mov     edi, [ebp + 8]              ; load formatting string to EDI
-
-    lea     esi, [ebp + 12]             ; load stack pointer and move pointer to 1st argument
+    mov     edi, [ebp + 8]              ; move formatting string to EDI
+    lea     esi, [ebp + 12]             ; load pointer to 1st argument
     
     print_arg:
         cmp     byte [edi], 25h         ; compare first byte to '%' char
-        je      print_arg_continue      ; if it's formatting string
+        je      print_arg_continue      ; check if it's formatting string
         cmp     byte [edi], 0           ; check if  it's '\0' char
         je      exit
 
-        mov     eax, edi                ; move pointer to fmt string char to EAX
+        mov     eax, edi                ; move pointer to fmt string char to EAX, 1st arg of print_string_char
         call    print_string_char       ; print non fmt character
 
         jmp     next_arg
 
         print_arg_continue:
-        inc     edi                     ; move to next char, should be s, d, c..., if input is correct
+        inc     edi                     ; move to next char, should be 's', 'd', 'c'...
 
         cmp     byte [edi], 73h         ; compare to 's' char, string
         jne     not_string
         mov     eax, [esi]              ; load value to print, dereference -> string
-        call    print_string            ; jump to print_string if fmt_str = "%s"
-        jmp     add4_to_esi
+        call    print_string            ; call print_string if fmt_str = "%s"
+        add     esi, 4                  ; move pointer to next argument
         not_string:
 
         cmp     byte [edi], 64h         ; compare to 'd' char, decimal
         jne     not_decimal
         mov     eax, [esi]              ; load value to print -> pointer to integer
-        call    print_decimal           ; jump to print_decimal if fmt_str = "%d"
-        jmp     add4_to_esi
+        call    print_decimal           ; call print_decimal if fmt_str = "%d"
+        add     esi, 4                  ; move pointer to next argument
         not_decimal:
         
         cmp     byte [edi], 63h         ; compare to 'c' char, char
         jne     print_percent_char      ; if nothing matches, print it as a character
         mov     eax, esi                ; load value to print -> pointer to char
-        call    print_char              ; jump to print_char if fmt_str = "%c"
-
-        add4_to_esi:
+        call    print_char              ; call print_char if fmt_str = "%c"
         add     esi, 4                  ; move pointer to next argument
 
         next_arg:
-        inc     edi                     ; increment pointer to next argument, should be '\0' or '%', if input is correct
-        jmp     print_arg
+        inc     edi                     ; increment pointer to next argument, should be '\0' or '%'
+        jmp     print_arg               ; jump to next fmt string
 
     exit:
         pop     ebx                     ; restore callee-saved registers
@@ -90,8 +87,10 @@ print_string:
     ret
 
 print_string_char:
-    push    eax                         ; save values of EAX and ECX registers
+    push    eax                         ; save values of EAX, EBX, ECX, EDX
+    push    ebx
     push    ecx
+    push    edx
 
     mov     ecx,  eax                   ; load pointer to character to ECX
 
@@ -100,13 +99,15 @@ print_string_char:
     mov     edx, 1
     int     80h
 
-    pop     ecx                         ; load back saved values
+    pop     edx                         ; load back saved values of registers
+    pop     ecx
+    pop     ebx
     pop     eax
 
     ret
 
 print_char:
-    mov     ecx, eax
+    mov     ecx, eax                    ; load pointer to char to ECX
 
     mov     eax, 4                      ; sys_write
     mov     ebx, 1                      ; stdout
