@@ -181,7 +181,7 @@ print_decimal:
     ret
 
 print_float:
-    
+    ; 21.504000
     
     ret
 

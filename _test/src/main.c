@@ -25,6 +25,7 @@ int main(int argc, char const *argv[])
     //printf_s("BBB");
     //printf_s("%d", 154);
 
+    printf_s("%s World\n", "Hello");
 
     return 0;
 }

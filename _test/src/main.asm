@@ -11,11 +11,12 @@ section .data
 
     neg_num dd -1538                    ; dd instead of db, important
     pos_num dd 4229
-    fl dd 1.234567e20                ; floating-point constant 
+    ;fl dd 1.234567e20                ; floating-point constant 
 
 section .text
     global  _start
     extern  printf_s
+    extern scanf_s
 
 _start:
     ;push    string                      ; push address of string to stack as second function parameter`
@@ -68,9 +69,15 @@ _start:
     ;push    fmt_str_c                   ; print newline
     ;call    printf_s
 
-    mov     eax, [fl]
-    push    eax
-    push    fmt_str_f                   ; print newline
+    ;mov     eax, [fl]
+    ;push    eax
+    ;push    fmt_str_f                   ; print newline
+    ;call    printf_s
+
+    call    scanf_s                     ; returns scanned value in EAX
+
+    push    eax                         ; push scanned string to stack
+    
     call    printf_s
 
     mov     eax, 1                      ; exit
