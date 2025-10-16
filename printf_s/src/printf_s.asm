@@ -46,6 +46,7 @@ printf_s:
         mov     eax, [esi]              ; load value to print, dereference -> string
         call    print_string            ; call print_string if fmt_str = "%s"
         add     esi, 4                  ; move pointer to next argument
+        jmp     next_arg
         not_string:
 
         cmp     byte [edi], 64h         ; compare to 'd' char, decimal
@@ -53,7 +54,16 @@ printf_s:
         mov     eax, [esi]              ; load value to print -> pointer to integer
         call    print_decimal           ; call print_decimal if fmt_str = "%d"
         add     esi, 4                  ; move pointer to next argument
+        jmp     next_arg
         not_decimal:
+
+        cmp     byte [edi], 66h         ; compare to 'f' char, float
+        jne     not_float
+        mov     eax, [esi]              ; load value to print -> pointer to float
+        call    print_float             ; call print_float if fmt_str = "%f"
+        add     esi, 4                  ; move pointer to next argument
+        jmp     next_arg
+        not_float:
         
         cmp     byte [edi], 63h         ; compare to 'c' char, char
         jne     print_percent_char      ; if nothing matches, print it as a character
@@ -168,6 +178,11 @@ print_decimal:
         jne     print_digit_loop        ; jump if not equals 0
 
     pop     esi                         ; retrieve value of ESI
+    ret
+
+print_float:
+    
+    
     ret
 
 section .note.GNU-stack \
