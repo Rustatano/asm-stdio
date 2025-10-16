@@ -1,12 +1,15 @@
-; Printf_s allows printing variables with different types located on stack to console.
-; Syntax (old):
-;   *in the file, where the printf_s function is being called*
-;   ///
+; Printf_s allows printing variables with different types located on stack to stdout.
+; It can be called from Assembly code or from C code.
+; In Assembly code:
 ;   push    variable        - 1st argument
-;   push    variable        - nth argument, optional
-;   push    format_string   - last argument
-;   call    printf_s          - function call, prints the variable
-;   ///
+;   push    variable        - n-th argument, optional
+;   push    fmt_str         - formatting string as last argument
+;   call    printf_s        - function call, prints the variable
+;   // variables must be pushed as values, not pointers (except for string, which is pointer to char array)
+; In C code:
+;   extern int printf_s(char *fmt, ...);
+;   printf_s("%s World!", "Hello");
+; File needs to be linked
 
 section .text
     global printf_s
