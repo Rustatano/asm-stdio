@@ -19,11 +19,11 @@ main.o: _test/src/main.asm
 
 # -----------------------
 
-printf_s_c: link_main_printf_s
+main_s_c: link_main_s_c
 	./_test/bin/main_c
 
-link_main_printf_s: compile_main_c
-	gcc -m32 _test/obj/main_c.o printf_s/obj/printf_s.o -o _test/bin/main_c
+link_main_s_c: compile_main_c
+	gcc -m32 _test/obj/main_c.o printf_s/obj/printf_s.o scanf_s/obj/scanf_s.o -o _test/bin/main_c
 
 compile_main_c: printf_s.o scanf_s.o
 	gcc -m32 -c _test/src/main.c -o _test/obj/main_c.o
