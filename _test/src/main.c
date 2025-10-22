@@ -23,7 +23,11 @@ int main(int argc, char const *argv[])
     //printf_s("%c", 'G');
     //printf_s("AAA");
     //printf_s("BBB");
-    printf_s("%d", 154);
+    char s[5];
+    //scanf("%d", &d);
+    scanf_s("%s", s);
+    //printf_s("%d\n", d);
+    printf_s("%s\n", s);
 
     //printf_s("output of scanf_s: %d\n", scanf_s("%d", &d));
 
