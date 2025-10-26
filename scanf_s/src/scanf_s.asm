@@ -23,17 +23,27 @@ scanf_s:
     inc     eax                         ; move pointer to next char in fmt string
 
     cmp     byte [eax], 64h             ; compare to 'd' char, decimal
-    je      scan_value                  ; TODO: scan decimal
+    je      scan_decimal                ; TODO: scan decimal, parsing strin to number
     cmp     byte [eax], 63h             ; compare to 'c' char, char
-    je      scan_value                  ; TODO: scan char
+    je      scan_string_char
     cmp     byte [eax], 73h             ; compare to 's' char, string
-    jne     exit
+    je      scan_string_char
 
-    scan_value:
+    scan_decimal:
+    jmp     exit
+    scan_string_char:
     mov     eax, 3                      ; sys_read
     mov     ebx, 0                      ; stdin
-    mov     ecx, [ebp + 12]             ; address to save the input to
+    ;mov     ecx, [ebp + 12]             ; address to save the input to
+    mov     ecx, input                  ; load pointer to 'input' variable
     int     80h
+
+    mov     ecx, [ecx]                  ; get value on 'input' address saved in ECX
+    mov     eax, [ebp + 12]             ; load pointer to strin variable on stack
+    mov     [eax], ecx                  ; set value on address in EAX to value in ECX
+
+
+    ; TODO: remove newline char in scanned string
 
     exit:
     pop     edx                         ; retrive registers

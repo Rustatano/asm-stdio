@@ -23,11 +23,13 @@ int main(int argc, char const *argv[])
     //printf_s("%c", 'G');
     //printf_s("AAA");
     //printf_s("BBB");
-    char s[5] = "A";
-    //scanf("%d", &d);
+    char s[5];
+    char c;
     scanf_s("%s", s);
+    scanf_s("%c", &c);
+    scanf_s("%d", &d);
     //printf_s("%d\n", d);
-    printf_s("%s\n", s);
+    printf_s("s{%s} - c{%c} - d{%d}\n", s, c, d);
 
     //printf_s("output of scanf_s: %d\n", scanf_s("%d", &d));
 

@@ -19,6 +19,9 @@ main.o: _test/src/main.asm
 
 # -----------------------
 
+main_s_c_debug: link_main_s_c
+	gdb _test/bin/main_c
+
 main_s_c: link_main_s_c
 	./_test/bin/main_c
 
