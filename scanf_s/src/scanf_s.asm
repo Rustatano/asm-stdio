@@ -15,7 +15,7 @@ scanf_s:
     push    ecx
     push    edx
 
-    mov     eax, [ebp + 8]              ; move pointer to argument variable
+    mov     eax, [ebp + 8]              ; move pointer to fmt string argument
 
     cmp     byte [eax], 25h             ; compare first byte to '%' char
     jne     exit
@@ -23,20 +23,17 @@ scanf_s:
     inc     eax                         ; move pointer to next char in fmt string
 
     cmp     byte [eax], 64h             ; compare to 'd' char, decimal
-    je      scan_value    
+    je      scan_value                  ; TODO: scan decimal
     cmp     byte [eax], 63h             ; compare to 'c' char, char
-    je      scan_value
+    je      scan_value                  ; TODO: scan char
     cmp     byte [eax], 73h             ; compare to 's' char, string
     jne     exit
 
     scan_value:
-
     mov     eax, 3                      ; sys_read
     mov     ebx, 0                      ; stdin
-    mov     ecx, input                  ; address to save the input to
+    mov     ecx, [ebp + 12]             ; address to save the input to
     int     80h
-
-
 
     exit:
     pop     edx                         ; retrive registers
